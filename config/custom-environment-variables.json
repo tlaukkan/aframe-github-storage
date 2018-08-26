@@ -10,7 +10,7 @@
   },
   "Storage" : {
     "tokenHashSeed": "STORAGE_TOKEN_HASH_SEED",
-    "encryptionPassword": "STORAGE_ENCRYPTION_PASSWORD"
+    "encryptionPassword": "STORAGE_ENCRYPTION_KEY"
   },
   "SMTP" : {
     "host": "SMTP_HOST",

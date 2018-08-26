@@ -1,14 +1,58 @@
-npm init
-npm i -D jest
-npm i -D webpack
-npm i -D webpack-cli
-node_modules/.bin/webpack -p --devtool source-map
+# A-Frame Github Storage
 
+This library implements WebSocket API which can be used to store A-Frame scene to github.
 
+## Usage
 
-https://github.com/webrtc/samples/blob/gh-pages/src/content/datachannel/basic/js/main.js
+# Publish package
 
+## First publish
 
-https://cdn.rawgit.com/golden-lake/test/baf1ecc360d42c5a97a9555e7fb50fd755c066b0/file_a.txt
+---
+    npm publish --access public
+---
 
-https://cdn.rawgit.com/universe/dimension/baf1ecc360d42c5a97a9555e7fb50fd755c066b0/x/y/z
+## Update
+
+---
+    npm version patch
+    npm publish
+---
+
+## Deploying signaling server to heroku
+
+### Preparation 
+
+* Checkout this project from github.
+* Install heroku cli.
+
+### Commands
+
+---
+    git clone https://github.com/tlaukkan/aframe-github-storage.git
+    cd aframe-github-storage
+    heroku create <your-heroku-account>-aframe-github-storage
+
+    heroku config:set GITHUB_USERNAME=<github-username>
+    heroku config:set GITHUB_TOKEN=<github-token>
+    heroku config:set GITHUB_REPOSITORY=<github-repository>
+    heroku config:set STORAGE_TOKEN_HASH_SEED=<storage-hash-eed>
+    heroku config:set STORAGE_ENCRYPTION_KEY=<storage-encryption-key> 
+    heroku config:set SMTP_HOST=<smtp-host>
+    heroku config:set SMTP_HOST=<smtp-port> 
+    heroku config:set SMTP_USERNAME=<smtp-username>
+    heroku config:set SMTP_PASSWORD=<smtp-password>    
+    heroku config:set SMTP_SECURE=<smtp-is-secure>
+    heroku config:set SMTP_FROM=<smtp-from-email-address> 
+
+    git push heroku master
+    heroku logs -t
+---
+
+### Example logs from HEROKU
+
+### Healt check
+Signaling server provides 200 OK healthcheck_ /signaling-health-check.
+
+Example: http://127.0.0.1:8080/signaling-health-check
+
