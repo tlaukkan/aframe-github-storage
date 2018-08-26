@@ -189,13 +189,17 @@ exports.Storage = class {
             };
 
             if (email.includes("@")) {
-                transporter.sendMail(mailOptions, function (error, info) {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(info);
-                    }
-                });
+                try {
+                    transporter.sendMail(mailOptions, function (error, info) {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(info);
+                        }
+                    });
+                } catch (e) {
+                    reject(e);
+                }
             } else {
                 console.log('email to ' + email + ' ignored. subject:' + subject + ' text:' + text);
                 resolve();
