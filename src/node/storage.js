@@ -167,10 +167,18 @@ exports.Storage = class {
      */
     async sendEmail(email, subject, text) {
         return new Promise(function(resolve, reject) {
-            const transporter = nodemailer.createTransport( config.get('SMTP.username') ?
-                { host: config.get('SMTP.host'), port: config.get('SMTP.port'), secure: ('true' === config.get('SMTP.secure').toString()),
-                    auth: { user: config.get('SMTP.username'), pass: config.get('SMTP.password') }} :
-                { host: config.get('SMTP.host'), port: config.get('SMTP.port'), secure: ('true' === config.get('SMTP.secure').toString())}
+            const transporter = nodemailer.createTransport(config.get('SMTP.username') ?
+                {
+                    host: config.get('SMTP.host'),
+                    port: config.get('SMTP.port'),
+                    secure: ('true' === config.get('SMTP.secure').toString()),
+                    auth: {user: config.get('SMTP.username'), pass: config.get('SMTP.password')}
+                } :
+                {
+                    host: config.get('SMTP.host'),
+                    port: config.get('SMTP.port'),
+                    secure: ('true' === config.get('SMTP.secure').toString())
+                }
             );
 
             const mailOptions = {
@@ -180,13 +188,18 @@ exports.Storage = class {
                 text: text
             };
 
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(info);
-                }
-            });
+            if (email.includes("@")) {
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(info);
+                    }
+                });
+            } else {
+                console.log('email to ' + email + ' ignored. subject:' + subject + ' text:' + text);
+                resolve();
+            }
         })
     }
 

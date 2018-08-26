@@ -27,10 +27,10 @@ describe('storage', function() {
         this.timeout(50000);
 
         const credentials = new Credentials();
-        credentials.email = 'test.user@test';
-        const path = 'test/file3';
+        credentials.email = 'test-email-1';
+        const path = 'test/file6';
         const content = '{}';
-        const testEmail2 = 'test.user2@test';
+        const testEmail2 = 'test-email-2';
 
         const github = new GithubClient(config.get('Github.username'), config.get('Github.token'));
         await github.setRepo('infinity');
@@ -39,7 +39,7 @@ describe('storage', function() {
         const storage = new Storage(github);
         credentials.token = await storage.grant(path, credentials.email, Role.ADMIN, credentials);
 
-        const client = new StorageClient(W3CWebSocket, 'ws://localhost:3000/', credentials);
+        const client = new StorageClient(W3CWebSocket, 'wss://aframe-storage-eu.herokuapp.com', credentials);
         await client.connect();
 
         const accessList = await client.getAccessList(path);
