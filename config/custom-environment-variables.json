@@ -1,0 +1,23 @@
+{
+  "Server": {
+    "host": "HOST",
+    "port": "PORT"
+  },
+  "Github" : {
+    "username": "GITHUB_USERNAME",
+    "token": "GITHUB_TOKEN",
+    "repository": "GITHUB_REPOSITORY"
+  },
+  "Storage" : {
+    "tokenHashSeed": "STORAGE_TOKEN_HASH_SEED",
+    "encryptionPassword": "STORAGE_ENCRYPTION_PASSWORD"
+  },
+  "SMTP" : {
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "username": "SMTP_USERNAME",
+    "password": "SMTP_PASSWORD",
+    "secure": "SMTP_SECURE",
+    "from": "SMTP_FROM"
+  }
+}
