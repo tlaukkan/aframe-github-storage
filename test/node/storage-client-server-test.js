@@ -20,6 +20,8 @@ const StorageServer = require('../../src/node/storage-server').StorageServer;
 const W3CWebSocket = require('websocket').w3cwebsocket;
 
 const assert = require ('assert');
+const StorageType = require("../../src/node/model").StorageType;
+const StorageDescriptor = require("../../src/node/model").StorageDescriptor;
 
 describe('storage', function() {
 
@@ -28,6 +30,7 @@ describe('storage', function() {
 
         const credentials = new Credentials();
         credentials.email = 'test.user@test';
+        credentials.repository = 'test';
         const path = 'test/file2';
         const content = '<a-entity id="1.a"><a-entity id="2.a"><a-entity id="3.a"></a-entity><a-entity id="3.b"></a-entity></a-entity><a-entity id="2.b"></a-entity></a-entity>';
         const testEmail2 = 'test.user2@test';
@@ -36,12 +39,13 @@ describe('storage', function() {
         await github.setRepo('test');
         await github.setBranch('master');
 
-        const storage = new Storage(github);
-        credentials.token = await storage.grant(path, credentials.email, Role.ADMIN, credentials);
-
-        const server = new StorageServer(github, '127.0.0.1', 1337);
+        const server = new StorageServer('127.0.0.1', 1337);
+        await server.listen();
         const client = new StorageClient(W3CWebSocket, 'ws://127.0.0.1:1337/', credentials);
         await client.connect();
+
+        const storage = new Storage(github);
+        credentials.token = await storage.grant(path, credentials.email, Role.ADMIN, credentials);
 
         const accessList = await client.getAccessList(path);
         assert.strictEqual(1, accessList.length);
@@ -65,5 +69,16 @@ describe('storage', function() {
 
         client.disconnect();
         server.close();
+    });
+
+    it('should test storage descriptor', async function () {
+        this.timeout(50000);
+
+        const descriptors = [new StorageDescriptor(StorageType.GITHUB, 'infinity', '^a-', '^id$'),
+            new StorageDescriptor(StorageType.GITHUB, 'test', '^a-', '^id$')];
+
+        console.log(JSON.stringify(descriptors));
     })
+
+
 });

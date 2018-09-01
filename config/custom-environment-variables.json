@@ -8,6 +8,7 @@
     "repository": "GITHUB_REPOSITORY"
   },
   "Storage" : {
+    "descriptors": "STORAGE_DESCRIPTORS",
     "tokenHashSeed": "STORAGE_TOKEN_HASH_SEED",
     "encryptionPassword": "STORAGE_ENCRYPTION_KEY"
   },

@@ -36,6 +36,7 @@ This library implements WebSocket API which can be used to store A-Frame scene t
     heroku config:set GITHUB_USERNAME=<github-username>
     heroku config:set GITHUB_TOKEN=<github-token>
     heroku config:set GITHUB_REPOSITORY=<github-repository>
+    heroku config:set STORAGE_DESCRIPTORS="[{\"storageType\":\"GITHUB\",\"repository\":\"infinity\",\"elementRegExpPattern\":\"^a-\",\"attributeRegExpPattern\":\"^id$\"},{\"storageType\":\"GITHUB}\",\"repository\":\"test\",\"elementRegExpPattern\":\"^a-\",\"attributeRegExpPattern\":\"^id$\"}]"
     heroku config:set STORAGE_TOKEN_HASH_SEED=<storage-hash-eed>
     heroku config:set STORAGE_ENCRYPTION_KEY=<storage-encryption-key> 
     heroku config:set SMTP_HOST=<smtp-host>
@@ -44,6 +45,7 @@ This library implements WebSocket API which can be used to store A-Frame scene t
     heroku config:set SMTP_PASSWORD=<smtp-password>    
     heroku config:set SMTP_SECURE=<smtp-is-secure>
     heroku config:set SMTP_FROM=<smtp-from-email-address> 
+
 
     git push heroku master
     heroku logs -t

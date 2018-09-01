@@ -28,8 +28,10 @@ exports.Credentials = class {
     /**
      * @param {String} email
      * @param {String} token
+     * @param {String} repository
      */
-    constructor(email, token) {
+    constructor(email, token, repository) {
+        this.repository = repository;
         this.email=email;
         this.token=token;
     }
@@ -220,7 +222,6 @@ exports.GetHeadCommitHashResponse = class {
     }
 };
 
-
 exports.ErrorResponse = class {
     /**
      * @param {String} error
@@ -228,5 +229,24 @@ exports.ErrorResponse = class {
     constructor(error) {
         this.error = error;
         this.messageType = exports.MessageType.ERROR_RESPONSE;
+    }
+};
+
+exports.StorageType = {
+    GITHUB: 'GITHUB'
+};
+
+exports.StorageDescriptor = class {
+    /**
+     * @param {String} storageType
+     * @param {String} repository
+     * @param {String} elementRegExpPattern
+     * @param {String} attributeRegExpPattern
+     */
+    constructor(storageType, repository, elementRegExpPattern, attributeRegExpPattern) {
+        this.storageType = storageType;
+        this.repository = repository;
+        this.elementRegExpPattern = elementRegExpPattern;
+        this.attributeRegExpPattern = attributeRegExpPattern;
     }
 };

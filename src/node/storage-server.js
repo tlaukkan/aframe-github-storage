@@ -1,11 +1,13 @@
-const WebSocketServer = require('websocket').server;
+const config = require('config');
 const http  = require( 'http');
+const WebSocketServer = require('websocket').server;
 
 const GithubClient = require('./github-client').GithubClient;
 const Storage = require('./storage').Storage;
 const XmlValidator = require('./xml-validator').XmlValidator;
 
 const model =  require( './model');
+const StorageDescriptor = model.StorageDescriptor;
 const MessageType = model.MessageType;
 const MessageEnvelop = model.MessageEnvelop;
 const GetAccessListRequest = model.GetAccessListRequest;
@@ -25,28 +27,58 @@ const GetHeadCommitHashResponse = model.GetHeadCommitHashResponse;
 const ErrorResponse = model.ErrorResponse;
 
 exports.StorageServer = class {
+
     /**
-     * @param {GithubClient} github
      * @param {String} host
      * @param {String} port
      */
-    constructor(github, host, port) {
+    constructor(host, port) {
+        this.host = host;
+        this.port = port;
+        /**
+         * @type {Map<String, Storage>}
+         */
+        this.storages = new Map();
+        /**
+         * @type {Map<String, XmlValidator>}
+         */
+        this.validators = new Map();
+    }
+
+    async listen() {
         console.log('storage server starting...');
-        this.storage = new Storage(github);
+
+        /**
+         * @type {String}
+         */
+        const descriptorsString = config.get('Storage.descriptors');
+
+        /**
+         * @type {Array<StorageDescriptor>}
+         */
+        const descriptors = JSON.parse(descriptorsString);
+        for (const descriptor of descriptors) {
+            console.log('Starting up storage: ' + JSON.stringify(descriptor));
+            const github = new GithubClient(config.get('Github.username'), config.get('Github.token'));
+            await github.setRepo(descriptor.repository);
+            await github.setBranch('master');
+            this.storages.set(descriptor.repository, new Storage(github));
+            this.validators.set(descriptor.repository, new XmlValidator(descriptor.elementRegExpPattern, descriptor.attributeRegExpPattern));
+        }
+
         this.httpServer = http.createServer(function (request, response) {
             if (request.url.endsWith('/health-check')) {
                 response.writeHead(200, {'Content-Type': 'text/plain'});
                 response.end();
             }
         });
-        this.xmlValidator = new XmlValidator('^a-', '^id$');
 
         const webSocketServer = new WebSocketServer({ httpServer: this.httpServer });
         webSocketServer.on('request', (request) => this.processConnection(request));
 
-        this.httpServer.listen(port, host);
+        this.httpServer.listen(this.port, this.host);
 
-        console.log('storage server started at ws://' + host + ':' + port + '/');
+        console.log('storage server started at ws://' + this.host + ':' + this.port + '/');
     }
 
     /**
@@ -106,7 +138,9 @@ exports.StorageServer = class {
      */
     async processEnvelop(connection, envelop) {
         try {
-            if (!envelop.message) {
+            if (!this.storages.has(envelop.credentials.repository)) {
+                this.handleError(connection, envelop, "no such repository: " + envelop.credentials.repository);
+            } else if (!envelop.message) {
                 this.handleError(connection, envelop, "envelope does not contain message");
             } else if (!envelop.message.messageType) {
                 this.handleError(connection, envelop, "envelope.message does not contain messageType");
@@ -125,7 +159,7 @@ exports.StorageServer = class {
             } else if (envelop.message.messageType === MessageType.GET_HEAD_COMMIT_HASH_REQUEST) {
                 await this.processGetHeadCommitHashRequest(connection, envelop, envelop.message);
             } else {
-                this.handleError(connection, envelop, "unknown message type: " + envelop.message.messageType);
+                this.handleError(connection, envelop, "no such message type: " + envelop.message.messageType);
             }
         } catch (e) {
             console.log(e.stack);
@@ -140,7 +174,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processGetAccessListRequest(connection, envelop, request) {
-        let accessList = await this.storage.getAccessList(request.path, envelop.credentials);
+        let accessList = await (this.storages.get(envelop.credentials.repository).getAccessList(request.path, envelop.credentials));
         this.sendResponse(connection, envelop, new GetAccessListResponse(accessList));
     }
 
@@ -151,7 +185,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processGrantRequest(connection, envelop, request) {
-        await this.storage.grant(request.path, request.email, request.role, envelop.credentials);
+        await this.storages.get(envelop.credentials.repository).grant(request.path, request.email, request.role, envelop.credentials);
         this.sendResponse(connection, envelop, new GrantResponse());
     }
 
@@ -163,7 +197,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processRevokeRequest(connection, envelop, request) {
-        await this.storage.revoke(request.path, request.email, request.role, envelop.credentials);
+        await this.storages.get(envelop.credentials.repository).revoke(request.path, request.email, request.role, envelop.credentials);
         this.sendResponse(connection, envelop, new RevokeResponse());
     }
 
@@ -175,12 +209,12 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processSaveRequest(connection, envelop, request) {
-        const errors = this.xmlValidator.validate(request.content);
+        const errors = this.validators.get(envelop.credentials.repository).validate(request.content);
         if (errors.length > 0) {
             console.log(envelop.credentials.email + " save failed due to validation error: " + errors);
             this.handleError(connection, envelop, JSON.stringify(errors));
         } else {
-            await this.storage.save(request.path, await this.xmlValidator.format(request.content), envelop.credentials);
+            await this.storages.get(envelop.credentials.repository).save(request.path, await this.validators.get(envelop.credentials.repository).format(request.content), envelop.credentials);
             this.sendResponse(connection, envelop, new SaveResponse());
         }
     }
@@ -193,7 +227,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processLoadRequest(connection, envelop, request) {
-        const content = await this.storage.load(request.path, envelop.credentials);
+        const content = await this.storages.get(envelop.credentials.repository).load(request.path, envelop.credentials);
         this.sendResponse(connection, envelop, new LoadResponse(content));
     }
 
@@ -205,7 +239,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processRemoveRequest(connection, envelop, request) {
-        await this.storage.remove(request.path, envelop.credentials);
+        await this.storages.get(envelop.credentials.repository).remove(request.path, envelop.credentials);
         this.sendResponse(connection, envelop, new RemoveResponse());
     }
 
@@ -216,7 +250,7 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processGetHeadCommitHashRequest(connection, envelop, request) {
-        const commitHash = await this.storage.getHeadCommitHash();
+        const commitHash = await this.storages.get(envelop.credentials.repository).getHeadCommitHash();
         this.sendResponse(connection, envelop, new GetHeadCommitHashResponse(commitHash));
     }
 };
