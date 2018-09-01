@@ -56,9 +56,7 @@
     "console-stamp": "^0.2.6",
     "github-api": "^3.0.0",
     "nodemailer": "^4.6.8",
-    "websocket": "^1.0.26"
-  },
-  "engines": {
-    "node": "8.11.3"
+    "websocket": "^1.0.26",
+    "xml2js": "^0.4.19"
   }
 }

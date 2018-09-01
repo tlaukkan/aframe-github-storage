@@ -27,10 +27,10 @@ describe('storage', function() {
         this.timeout(50000);
 
         const credentials = new Credentials();
-        credentials.email = 'test-email-1';
-        const path = 'test/file6';
+        credentials.email = 'tommi.s.e.laukkanen@gmail.com';
+        const path = 'test/file12';
         const content = '{}';
-        const testEmail2 = 'test-email-2';
+        const testEmail2 = 'tlaukkan@hotmail.com';
 
         const github = new GithubClient(config.get('Github.username'), config.get('Github.token'));
         await github.setRepo('infinity');
