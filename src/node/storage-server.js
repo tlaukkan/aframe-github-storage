@@ -22,8 +22,8 @@ const LoadRequest = model.LoadRequest;
 const LoadResponse = model.LoadResponse;
 const RemoveRequest = model.RemoveRequest;
 const RemoveResponse = model.RemoveResponse;
-const GetHeadCommitHashRequest = model.GetHeadCommitHashRequest;
-const GetHeadCommitHashResponse = model.GetHeadCommitHashResponse;
+const GetHeadCommitHashRequest = model.GetCdnUrlPrefix;
+const GetHeadCommitHashResponse = model.GetCdnUrlPrefixResponse;
 const ErrorResponse = model.ErrorResponse;
 
 exports.StorageServer = class {
@@ -156,8 +156,8 @@ exports.StorageServer = class {
                 await this.processLoadRequest(connection, envelop, envelop.message);
             } else if (envelop.message.messageType === MessageType.REMOVE_REQUEST) {
                 await this.processRemoveRequest(connection, envelop, envelop.message);
-            } else if (envelop.message.messageType === MessageType.GET_HEAD_COMMIT_HASH_REQUEST) {
-                await this.processGetHeadCommitHashRequest(connection, envelop, envelop.message);
+            } else if (envelop.message.messageType === MessageType.GET_CDN_URL_PREFIX_REQUEST) {
+                await this.processGetCdnUrlPrefixRequest(connection, envelop, envelop.message);
             } else {
                 this.handleError(connection, envelop, "no such message type: " + envelop.message.messageType);
             }
@@ -249,8 +249,8 @@ exports.StorageServer = class {
      * @param {GetHeadCommitHashRequest} request
      * @returns {Promise<void>}
      */
-    async processGetHeadCommitHashRequest(connection, envelop, request) {
-        const commitHash = await this.storages.get(envelop.credentials.repository).getHeadCommitHash();
+    async processGetCdnUrlPrefixRequest(connection, envelop, request) {
+        const commitHash = await this.storages.get(envelop.credentials.repository).getCdnUrlPrefix();
         this.sendResponse(connection, envelop, new GetHeadCommitHashResponse(commitHash));
     }
 };

@@ -65,8 +65,24 @@ describe('storage', function() {
             '  <a-entity id="2.b"/>\n' +
             '</a-entity>', loadedContent);
         await client.remove('test', path);
-        console.log(await client.getHeadCommitHash('test'));
+        console.log(await client.getCdnUrlPrefix('test'));
 
+        client.disconnect();
+        server.close();
+    });
+
+    it('should test get CDN URL prefix', async function () {
+        this.timeout(50000);
+
+        const credentials = new Credentials();
+        credentials.repository = 'infinity';
+        credentials.email = 'test.user@test';
+
+        const server = new StorageServer('127.0.0.1', 1337);
+        await server.listen();
+        const client = new StorageClient(W3CWebSocket, 'ws://127.0.0.1:1337/', [credentials]);
+        await client.connect();
+        console.log(await client.getCdnUrlPrefix('infinity'));
         client.disconnect();
         server.close();
     });

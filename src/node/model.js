@@ -64,8 +64,8 @@ exports.MessageType = {
     LOAD_RESPONSE: 'LOAD_RESPONSE',
     REMOVE_REQUEST: 'REMOVE_REQUEST',
     REMOVE_RESPONSE: 'REMOVE_RESPONSE',
-    GET_HEAD_COMMIT_HASH_REQUEST: 'GET_HEAD_COMMIT_HASH_REQUEST',
-    GET_HEAD_COMMIT_HASH_RESPONSE: 'GET_HEAD_COMMIT_HASH_RESPONSE',
+    GET_CDN_URL_PREFIX_REQUEST: 'GET_HEAD_COMMIT_HASH_REQUEST',
+    GET_CDN_URL_PREFIX_RESPONSE: 'GET_HEAD_COMMIT_HASH_RESPONSE',
     ERROR_RESPONSE: 'ERROR_RESPONSE'
 };
 
@@ -204,21 +204,21 @@ exports.RemoveResponse = class {
     }
 };
 
-exports.GetHeadCommitHashRequest = class {
+exports.GetCdnUrlPrefix = class {
     /**
      */
     constructor() {
-        this.messageType = exports.MessageType.GET_HEAD_COMMIT_HASH_REQUEST;
+        this.messageType = exports.MessageType.GET_CDN_URL_PREFIX_REQUEST;
     }
 };
 
-exports.GetHeadCommitHashResponse = class {
+exports.GetCdnUrlPrefixResponse = class {
     /**
      * @param {String} commitHash
      */
     constructor(commitHash) {
-        this.commitHash = commitHash
-        this.messageType = exports.MessageType.GET_HEAD_COMMIT_HASH_RESPONSE;
+        this.commitHash = commitHash;
+        this.messageType = exports.MessageType.GET_CDN_URL_PREFIX_RESPONSE;
     }
 };
 

@@ -9,8 +9,8 @@ const LoadRequest = model.LoadRequest;
 const LoadResponse = model.LoadResponse;
 const Credentials = model.Credentials;
 const RemoveRequest = model.RemoveRequest;
-const GetHeadCommitHashRequest = model.GetHeadCommitHashRequest;
-const GetHeadCommitHashResponse = model.GetHeadCommitHashResponse;
+const GetCdnUrlPrefix = model.GetCdnUrlPrefix;
+const GetHeadCommitHashResponse = model.GetCdnUrlPrefixResponse;
 const uuidv4 = require('uuid/v4');
 const StorageType = require("./model").StorageType;
 
@@ -280,11 +280,11 @@ exports.StorageClient = class {
      * @param {String} repository
      * @returns {Promise<String>}
      */
-    async getHeadCommitHash(repository) {
+    async getCdnUrlPrefix(repository) {
         /**
          * @type {GetHeadCommitHashResponse}
          */
-        const response = await this.send(new MessageEnvelop(uuidv4(), new GetHeadCommitHashRequest(), this.credentialsMap.get(repository)));
+        const response = await this.send(new MessageEnvelop(uuidv4(), new GetCdnUrlPrefix(), this.credentialsMap.get(repository)));
         return response.commitHash;
     }
 

@@ -146,8 +146,8 @@ exports.Storage = class {
      * Gets current branch head commit hash.
      * @returns {Promise<String>}
      */
-    async getHeadCommitHash() {
-        return 'https://raw.githubusercontent.com/' + this.github.userName + '/' + this.github.repositoryName +  '/' + (await this.github.getHeadCommitHash()) + '/';
+    async getCdnUrlPrefix() {
+        return 'https://raw.githubusercontent.com/' + this.github.userName + '/' + this.github.repositoryName +  '/' + (await this.github.getHeadCommitHash()).substring(0, 8) + '/';
     }
 
     /**
