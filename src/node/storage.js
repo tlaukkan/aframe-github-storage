@@ -147,7 +147,7 @@ exports.Storage = class {
      * @returns {Promise<String>}
      */
     async getHeadCommitHash() {
-        return await this.github.getHeadCommitHash();
+        return 'https://raw.githubusercontent.com/' + this.github.userName + '/' + this.github.repositoryName +  '/' + (await this.github.getHeadCommitHash()) + '/';
     }
 
     /**

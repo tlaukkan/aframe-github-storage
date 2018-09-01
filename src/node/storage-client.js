@@ -12,6 +12,7 @@ const RemoveRequest = model.RemoveRequest;
 const GetHeadCommitHashRequest = model.GetHeadCommitHashRequest;
 const GetHeadCommitHashResponse = model.GetHeadCommitHashResponse;
 const uuidv4 = require('uuid/v4');
+const StorageType = require("./model").StorageType;
 
 class RejectResolve {
     /**
@@ -68,7 +69,7 @@ exports.StorageClient = class {
      * Connects client to storage server.
      * @returns {Promise<any>}
      */
-    connect () {
+    connect() {
         if (this.state !== this.State.DISCONNECTED && this.state !== this.State.CONNECTION_FAILED) {
             console.log.error("storage client connect() called when in state is not disconnected or connection failed");
             throw new Error("storage client connect() called when in state is not disconnected or connection failed: " + this.state);

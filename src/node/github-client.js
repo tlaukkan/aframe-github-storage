@@ -9,6 +9,7 @@ exports.GithubClient = class {
     }
 
     async setRepo(repoName) {
+        this.repositoryName = repoName;
         let repos = await this.listRepos();
         if (repos.map(r => r.name).includes(repoName)) {
             this.repository = this.github.getRepo(this.userName, repoName);
