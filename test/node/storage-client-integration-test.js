@@ -51,7 +51,13 @@ describe('storage', function() {
         await client.revoke(path, testEmail2, Role.USER);
         await client.save(path, content);
         const loadedContent = await client.load(path);
-        assert.strictEqual(content, loadedContent);
+        assert.strictEqual('<a-entity id="1.a">\n' +
+            '  <a-entity id="2.a">\n' +
+            '    <a-entity id="3.a"/>\n' +
+            '    <a-entity id="3.b"/>\n' +
+            '  </a-entity>\n' +
+            '  <a-entity id="2.b"/>\n' +
+            '</a-entity>', loadedContent);
         await client.remove(path);
         console.log(await client.getHeadCommitHash());
 
