@@ -147,11 +147,11 @@ exports.RevokeResponse = class {
 exports.SaveRequest = class {
     /**
      * @param {String} path
-     * @param {String} jsonContent
+     * @param {String} content
      */
-    constructor(path, jsonContent) {
+    constructor(path, content) {
         this.path = path;
-        this.jsonContent = jsonContent;
+        this.content = content;
         this.messageType = exports.MessageType.SAVE_REQUEST;
     }
 };
@@ -176,10 +176,10 @@ exports.LoadRequest = class {
 
 exports.LoadResponse = class {
     /**
-     * @param {String} jsonContent
+     * @param {String} content
      */
-    constructor(jsonContent) {
-        this.jsonContent = jsonContent;
+    constructor(content) {
+        this.content = content;
         this.messageType = exports.MessageType.LOAD_RESPONSE;
     }
 };

@@ -29,7 +29,7 @@ describe('storage', function() {
         const credentials = new Credentials();
         credentials.email = 'test.user@test';
         const path = 'test/file2';
-        const content = '{}';
+        const content = '<a-entity id="1.a"><a-entity id="2.a"><a-entity id="3.a"></a-entity><a-entity id="3.b"></a-entity></a-entity><a-entity id="2.b"></a-entity></a-entity>';
         const testEmail2 = 'test.user2@test';
 
         const github = new GithubClient(config.get('Github.username'), config.get('Github.token'));
@@ -53,7 +53,13 @@ describe('storage', function() {
         await client.revoke(path, testEmail2, Role.USER);
         await client.save(path, content);
         const loadedContent = await client.load(path);
-        assert.strictEqual(content, loadedContent);
+        assert.strictEqual('<a-entity id="1.a">\n' +
+            '  <a-entity id="2.a">\n' +
+            '    <a-entity id="3.a"/>\n' +
+            '    <a-entity id="3.b"/>\n' +
+            '  </a-entity>\n' +
+            '  <a-entity id="2.b"/>\n' +
+            '</a-entity>', loadedContent);
         await client.remove(path);
         console.log(await client.getHeadCommitHash());
 

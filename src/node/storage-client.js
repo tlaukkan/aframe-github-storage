@@ -224,11 +224,11 @@ exports.StorageClient = class {
 
     /**
      * @param {String} path
-     * @param {String} jsonContent
+     * @param {String} content
      * @returns {Promise<void>}
      */
-    async save(path, jsonContent) {
-        await this.send(new MessageEnvelop(uuidv4(), new SaveRequest(path, jsonContent), this.credentials));
+    async save(path, content) {
+        await this.send(new MessageEnvelop(uuidv4(), new SaveRequest(path, content), this.credentials));
     }
 
     /**
@@ -240,7 +240,7 @@ exports.StorageClient = class {
          * @type {LoadResponse}
          */
         const response = await this.send(new MessageEnvelop(uuidv4(), new LoadRequest(path), this.credentials));
-        return response.jsonContent;
+        return response.content;
     }
 
     /**

@@ -16,7 +16,6 @@ const Credentials = require('../../src/node/model').Credentials;
 const Role = require('../../src/node/model').Role;
 
 const StorageClient = require('../../src/node/storage-client').StorageClient;
-const StorageServer = require('../../src/node/storage-server').StorageServer;
 const W3CWebSocket = require('websocket').w3cwebsocket;
 
 const assert = require ('assert');
@@ -29,7 +28,7 @@ describe('storage', function() {
         const credentials = new Credentials();
         credentials.email = 'tommi.s.e.laukkanen@gmail.com';
         const path = 'test/file12';
-        const content = '{}';
+        const content = '<a-entity id="1.a"><a-entity id="2.a"><a-entity id="3.a"></a-entity><a-entity id="3.b"></a-entity></a-entity><a-entity id="2.b"></a-entity></a-entity>';
         const testEmail2 = 'tlaukkan@hotmail.com';
 
         const github = new GithubClient(config.get('Github.username'), config.get('Github.token'));

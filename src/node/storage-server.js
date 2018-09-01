@@ -3,6 +3,7 @@ const http  = require( 'http');
 
 const GithubClient = require('./github-client').GithubClient;
 const Storage = require('./storage').Storage;
+const XmlValidator = require('./xml-validator').XmlValidator;
 
 const model =  require( './model');
 const MessageType = model.MessageType;
@@ -38,6 +39,7 @@ exports.StorageServer = class {
                 response.end();
             }
         });
+        this.xmlValidator = new XmlValidator('^a-', '^id$');
 
         const webSocketServer = new WebSocketServer({ httpServer: this.httpServer });
         webSocketServer.on('request', (request) => this.processConnection(request));
@@ -173,8 +175,14 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processSaveRequest(connection, envelop, request) {
-        await this.storage.save(request.path, JSON.stringify(JSON.parse(request.jsonContent)), envelop.credentials);
-        this.sendResponse(connection, envelop, new SaveResponse());
+        const errors = this.xmlValidator.validate(request.content);
+        if (errors.length > 0) {
+            console.log(envelop.credentials.email + " save failed due to validation error: " + errors);
+            this.handleError(connection, envelop, JSON.stringify(errors));
+        } else {
+            await this.storage.save(request.path, await this.xmlValidator.format(request.content), envelop.credentials);
+            this.sendResponse(connection, envelop, new SaveResponse());
+        }
     }
 
 
@@ -185,8 +193,8 @@ exports.StorageServer = class {
      * @returns {Promise<void>}
      */
     async processLoadRequest(connection, envelop, request) {
-        const jsonContent = await this.storage.load(request.path, envelop.credentials);
-        this.sendResponse(connection, envelop, new LoadResponse(jsonContent));
+        const content = await this.storage.load(request.path, envelop.credentials);
+        this.sendResponse(connection, envelop, new LoadResponse(content));
     }
 
 

@@ -1,4 +1,5 @@
-var parseString = require('xml2js').parseString;
+const xml2js = require('xml2js');
+const parseString = xml2js.parseString;
 
 exports.XmlValidator = class {
 
@@ -9,6 +10,7 @@ exports.XmlValidator = class {
     constructor(elementRegExpPattern, attributeRegExpPattern) {
         this.elementRegexp= new RegExp(elementRegExpPattern);
         this.attributeRegexp = new RegExp(attributeRegExpPattern);
+        this.builder = new xml2js.Builder({headless: true});
     }
 
     /**
@@ -23,6 +25,21 @@ exports.XmlValidator = class {
                 }
                 const errors =this.validateFragment(rootElement);
                 resolve(errors);
+            })
+        });
+    }
+
+    /**
+     * @param {String} xml
+     * @returns {Promise<String>}
+     */
+    format(xml) {
+        return new Promise((resolve, reject) => {
+            parseString(xml, (err, rootElement) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(this.builder.buildObject(rootElement));
             })
         });
     }

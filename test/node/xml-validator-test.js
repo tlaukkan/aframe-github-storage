@@ -8,5 +8,6 @@ describe('xml-validator-test', function() {
         const xmlValidator = new XmlValidator('^a-entity$', '^id$');
         const result = await xmlValidator.validate(testXml);
         assert.strictEqual(result.length, 4);
+        console.log(await xmlValidator.format(testXml));
     });
 });
