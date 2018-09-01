@@ -41,22 +41,22 @@ describe('storage', function() {
 
         const server = new StorageServer('127.0.0.1', 1337);
         await server.listen();
-        const client = new StorageClient(W3CWebSocket, 'ws://127.0.0.1:1337/', credentials);
+        const client = new StorageClient(W3CWebSocket, 'ws://127.0.0.1:1337/', [credentials]);
         await client.connect();
 
         const storage = new Storage(github);
         credentials.token = await storage.grant(path, credentials.email, Role.ADMIN, credentials);
 
-        const accessList = await client.getAccessList(path);
+        const accessList = await client.getAccessList('test', path);
         assert.strictEqual(1, accessList.length);
         assert.strictEqual(credentials.email, accessList[0].email);
         assert.strictEqual(1, accessList[0].roles.length);
         assert.strictEqual(Role.ADMIN, accessList[0].roles[0]);
 
-        await client.grant(path, testEmail2, Role.USER);
-        await client.revoke(path, testEmail2, Role.USER);
-        await client.save(path, content);
-        const loadedContent = await client.load(path);
+        await client.grant('test', path, testEmail2, Role.USER);
+        await client.revoke('test', path, testEmail2, Role.USER);
+        await client.save('test', path, content);
+        const loadedContent = await client.load('test', path);
         assert.strictEqual('<a-entity id="1.a">\n' +
             '  <a-entity id="2.a">\n' +
             '    <a-entity id="3.a"/>\n' +
@@ -64,8 +64,8 @@ describe('storage', function() {
             '  </a-entity>\n' +
             '  <a-entity id="2.b"/>\n' +
             '</a-entity>', loadedContent);
-        await client.remove(path);
-        console.log(await client.getHeadCommitHash());
+        await client.remove('test', path);
+        console.log(await client.getHeadCommitHash('test'));
 
         client.disconnect();
         server.close();

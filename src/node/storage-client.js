@@ -7,6 +7,7 @@ const RevokeRequest = model.RevokeRequest;
 const SaveRequest = model.SaveRequest;
 const LoadRequest = model.LoadRequest;
 const LoadResponse = model.LoadResponse;
+const Credentials = model.Credentials;
 const RemoveRequest = model.RemoveRequest;
 const GetHeadCommitHashRequest = model.GetHeadCommitHashRequest;
 const GetHeadCommitHashResponse = model.GetHeadCommitHashResponse;
@@ -26,7 +27,13 @@ class RejectResolve {
 }
 
 exports.StorageClient = class {
-    constructor(WebSocket, url, credentials) {
+    /**
+     *
+     * @param {Object} WebSocket
+     * @param {String} url
+     * @param {Array<Credentials>} credentialsArray
+     */
+    constructor(WebSocket, url, credentialsArray) {
         this.State = {
             CONNECTING: 'CONNECTING',
             CONNECTION_FAILED: 'CONNECTION_FAILED',
@@ -36,7 +43,18 @@ exports.StorageClient = class {
         this.WebSocket = WebSocket;
 
         this.url = url;
-        this.credentials = credentials;
+        //this.credentials = credentials;
+
+        /**
+         * @type {Map<String, Credentials>}
+         */
+        this.credentialsMap = new Map();
+
+        for (const credentials of credentialsArray) {
+            console.log('storage client received credentials for: ' + credentials.repository);
+            this.credentialsMap.set(credentials.repository, credentials);
+        }
+
         this.state = this.State.DISCONNECTED;
         this.webSocket = null;
 
@@ -191,74 +209,81 @@ exports.StorageClient = class {
     };
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @returns {Promise<Access[]>}
      */
-    async getAccessList(path) {
+    async getAccessList(repository, path) {
         /**
          * @type {GetAccessListResponse}
          */
-        let response = await this.send(new MessageEnvelop(uuidv4(), new GetAccessListRequest(path), this.credentials));
+        let response = await this.send(new MessageEnvelop(uuidv4(), new GetAccessListRequest(path), this.credentialsMap.get(repository)));
         return response.accessList;
     }
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @param {String} email
      * @param {String} role
      * @returns {Promise<void>}
      */
-    async grant(path, email, role) {
-        await this.send(new MessageEnvelop(uuidv4(), new GrantRequest(path, email, role), this.credentials));
+    async grant(repository, path, email, role) {
+        await this.send(new MessageEnvelop(uuidv4(), new GrantRequest(path, email, role), this.credentialsMap.get(repository)));
     }
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @param {String} email
      * @param {String} role
      * @returns {Promise<void>}
      */
-    async revoke(path, email, role) {
-        await this.send(new MessageEnvelop(uuidv4(), new RevokeRequest(path, email, role), this.credentials));
+    async revoke(repository, path, email, role) {
+        await this.send(new MessageEnvelop(uuidv4(), new RevokeRequest(path, email, role), this.credentialsMap.get(repository)));
     }
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @param {String} content
      * @returns {Promise<void>}
      */
-    async save(path, content) {
-        await this.send(new MessageEnvelop(uuidv4(), new SaveRequest(path, content), this.credentials));
+    async save(repository, path, content) {
+        await this.send(new MessageEnvelop(uuidv4(), new SaveRequest(path, content), this.credentialsMap.get(repository)));
     }
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @returns {Promise<String>}
      */
-    async load(path) {
+    async load(repository, path) {
         /**
          * @type {LoadResponse}
          */
-        const response = await this.send(new MessageEnvelop(uuidv4(), new LoadRequest(path), this.credentials));
+        const response = await this.send(new MessageEnvelop(uuidv4(), new LoadRequest(path), this.credentialsMap.get(repository)));
         return response.content;
     }
 
     /**
+     * @param {String} repository
      * @param {String} path
      * @returns {Promise<void>}
      */
-    async remove(path) {
-        await this.send(new MessageEnvelop(uuidv4(), new RemoveRequest(path), this.credentials));
+    async remove(repository, path) {
+        await this.send(new MessageEnvelop(uuidv4(), new RemoveRequest(path), this.credentialsMap.get(repository)));
     }
 
     /**
+     * @param {String} repository
      * @returns {Promise<String>}
      */
-    async getHeadCommitHash() {
+    async getHeadCommitHash(repository) {
         /**
          * @type {GetHeadCommitHashResponse}
          */
-        const response = await this.send(new MessageEnvelop(uuidv4(), new GetHeadCommitHashRequest(), this.credentials));
+        const response = await this.send(new MessageEnvelop(uuidv4(), new GetHeadCommitHashRequest(), this.credentialsMap.get(repository)));
         return response.commitHash;
     }
 
