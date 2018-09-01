@@ -19,7 +19,7 @@ This library implements WebSocket API which can be used to store A-Frame scene t
     npm publish
 ---
 
-## Deploying signaling server to heroku
+## Deploying storage server to heroku
 
 ### Preparation 
 
@@ -50,10 +50,8 @@ This library implements WebSocket API which can be used to store A-Frame scene t
     heroku logs -t
 ---
 
-### Example logs from HEROKU
-
 ### Healt check
-Signaling server provides 200 OK healthcheck_ /signaling-health-check.
+Storage server provides 200 OK healthcheck at URL path: /signaling-health-check.
 
-Example: http://127.0.0.1:8080/signaling-health-check
+Example: http://127.0.0.1:8080/health-check
 
