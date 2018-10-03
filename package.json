@@ -1,5 +1,5 @@
 {
-  "name": "aframe-github-storage",
+  "name": "@tlaukkan/aframe-github-storage",
   "version": "0.0.1",
   "description": "A-Frame Github Storage",
   "main": "src/node/server.js",
